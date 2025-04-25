@@ -6,9 +6,9 @@ This repository contains an n8n workflow designed to automate the processing of 
 
 - n8n — Workflow automation (Chat Trigger, Basic LLM Chain, MySQL nodes)
 
-- Ollama — Local LLM for SQL generation-
+- Ollama — Local LLM for SQL generation
 
-- MySQL — Relational database-
+- MySQL — Relational database
 
 
 ## Workflow Overview
@@ -23,7 +23,7 @@ This repository contains an n8n workflow designed to automate the processing of 
 - **MySQL Node:** Executes a custom MySQL query based on the output from the language model.
 
 
-##The workflow follows this sequence:
+## The workflow follows this sequence:
 
 - **Trigger:** Starts when a chat message is received via the "When chat message received" node.
 
