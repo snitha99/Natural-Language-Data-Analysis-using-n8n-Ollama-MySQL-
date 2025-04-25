@@ -1,6 +1,6 @@
 # Natural-Language-Data-Analysis-using-n8n-Ollama-MySQL
 
-This repository contains an n8n workflow designed to automate the processing of incoming chat messages using the Ollama language model and execute a custom MySQL query based on the processed data. The workflow is ideal for applications such as chatbots, customer service automation, or any system requiring real-time processing of chat-based inputs with database integration.
+This project explains a n8n workflow designed to automate the processing of incoming chat messages using the Ollama language model and execute a custom MySQL query based on the processed data. The workflow is ideal for applications such as chatbots, customer service automation, or any system requiring real-time processing of chat-based inputs with database integration.
 
 ## Tech Stack
 
