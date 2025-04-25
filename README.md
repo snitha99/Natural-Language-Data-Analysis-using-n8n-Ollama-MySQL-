@@ -4,11 +4,11 @@ This repository contains an n8n workflow designed to automate the processing of 
 
 ## Tech Stack
 
--n8n — Workflow automation (Chat Trigger, Basic LLM Chain, MySQL nodes)-
+- n8n — Workflow automation (Chat Trigger, Basic LLM Chain, MySQL nodes)
 
--Ollama — Local LLM for SQL generation-
+- Ollama — Local LLM for SQL generation-
 
--MySQL — Relational database-
+- MySQL — Relational database-
 
 
 ## Workflow Overview
@@ -16,18 +16,18 @@ This repository contains an n8n workflow designed to automate the processing of 
 ### The workflow consists of three main nodes:
 
 
-Trigger Node: Activates when a chat message is received.
+- **Trigger Node:** Activates when a chat message is received.
 
-Basic LLM Chain: Processes the chat message using the Ollama language model.
+- **Basic LLM Chain:** Processes the chat message using the Ollama language model.
 
-MySQL Node: Executes a custom MySQL query based on the output from the language model.
+- **MySQL Node:** Executes a custom MySQL query based on the output from the language model.
 
 
 ##The workflow follows this sequence:
 
-Trigger: Starts when a chat message is received via the "When chat message received" node.
+- **Trigger:** Starts when a chat message is received via the "When chat message received" node.
 
-Processing: The message is passed to the "Basic LLM Chain" node, which uses the Ollama model to process the input.
+- **Processing:** The message is passed to the "Basic LLM Chain" node, which uses the Ollama model to process the input.
 
-Action: The processed data is used by the "MySQL1 executeQuery" node to perform a database operation (e.g., storing results, updating records, or retrieving data).
+- **Action:** The processed data is used by the "MySQL1 executeQuery" node to perform a database operation (e.g., storing results, updating records, or retrieving data).
 
