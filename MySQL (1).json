@@ -1,0 +1,118 @@
+{
+  "name": "MySQL",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM companies;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        80,
+        -300
+      ],
+      "id": "75b93f9b-e186-46e2-b69d-e4a213cefb88",
+      "name": "MySQL1",
+      "credentials": {
+        "mySql": {
+          "id": "JyYrYhQD2bdP8gXP",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -580,
+        -300
+      ],
+      "id": "84872471-4443-4ef4-96b1-7292b624dd96",
+      "name": "When chat message received",
+      "webhookId": "d87a2d7a-8870-4e97-82a4-141b5fac70f3"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -320,
+        -300
+      ],
+      "id": "28cec990-e5f7-44ca-9fdf-fb1e6e5ebfa2",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "tinyllama:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -100
+      ],
+      "id": "00370aa5-e9ca-4e89-8ce7-4c78d34cf0b8",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "CHQjHoyFzXmzhnbi",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "MySQL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b904b895-ba61-4fe3-b0c3-c0779fe7a9fc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6151baa4db8a9b9fb4b6f1b1ca7ab0a0ad6cbb0387c41e9728532a48d25ee3b5"
+  },
+  "id": "cRbcIJVFiuM2jaCO",
+  "tags": []
+}
