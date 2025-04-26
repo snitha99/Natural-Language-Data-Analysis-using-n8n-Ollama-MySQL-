@@ -1,0 +1,149 @@
+{
+  "name": "MySQL Gemini",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -420,
+        -740
+      ],
+      "id": "cd8c29e7-b231-411e-82ba-fcc50706d11f",
+      "name": "When chat message received",
+      "webhookId": "4d8a1caf-16e3-4681-8c3c-64d43af8be13"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a helpful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        -180,
+        -740
+      ],
+      "id": "5a719bc4-432d-411a-a659-74f05e589c30",
+      "name": "AI Agent",
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/learnlm-2.0-flash-experimental",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        -540
+      ],
+      "id": "c71572fa-25e1-411c-a999-3f2527103ef8",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "NFt3az1M7jisMchu",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -120,
+        -560
+      ],
+      "id": "3377d974-c0a7-4399-8409-05096cea596d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "\nSELECT company_id,open_price FROM stock_prices;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        180,
+        -740
+      ],
+      "id": "460ea57f-f1ae-45ab-8f7f-98082250dc51",
+      "name": "MySQL",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "retryOnFail": true,
+      "credentials": {
+        "mySql": {
+          "id": "JyYrYhQD2bdP8gXP",
+          "name": "MySQL account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "558958a1-261b-4de6-9dbd-ca6401e8d7b0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6151baa4db8a9b9fb4b6f1b1ca7ab0a0ad6cbb0387c41e9728532a48d25ee3b5"
+  },
+  "id": "mEREMqDmOlvCs0iZ",
+  "tags": []
+}
