@@ -1,0 +1,397 @@
+{
+  "name": "DA MySQL",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "tinyllama:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        200,
+        -380
+      ],
+      "id": "80b03314-dfe9-4eaa-892d-fcf992ccc6c0",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "CHQjHoyFzXmzhnbi",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "question",
+              "value": "const question = $json[\"message\"][\"text\"]; return [{ json: { question } }];"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Set Question",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -440,
+        -740
+      ],
+      "id": "2de3786f-5d43-465c-a834-572095b2d5d9"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT table_name, column_name, data_type FROM information_schema.columns WHERE table_schema = 'assignment';"
+      },
+      "name": "MySQL Schema",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -500
+      ],
+      "id": "1a0e211a-7476-4d97-b0cc-4d110de11a57",
+      "credentials": {
+        "mySql": {
+          "id": "ZgDzjXigYArf4Bhz",
+          "name": "MySQL account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const tables = {};\nfor (const item of items) {\n    const table = item.json.table_name;\n    const column = item.json.column_name;\n    const type = item.json.data_type;\n    if (!tables[table]) tables[table] = [];\n    tables[table].push({ column, type });\n}\nlet schemaText = \"\";\nfor (const tableName of Object.keys(tables)) {\n    const cols = tables[tableName].map(c => `${c.column} (${c.type})`).join(\", \");\n    schemaText += `${tableName}: ${cols}\\n`;\n}\nreturn [{ json: { schema: schemaText } }];"
+      },
+      "name": "Format Schema",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -180,
+        -500
+      ],
+      "id": "09f0368f-434e-46de-8054-d4e0ca85b23f"
+    },
+    {
+      "parameters": {},
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        -720
+      ],
+      "id": "399f246e-9bff-42c0-8608-ef679ee23256"
+    },
+    {
+      "parameters": {
+        "functionCode": "const question = $json.question;\nconst schema = $json.schema;\nconst prompt = `You are a SQL query generator. The database has the following tables and columns:\\n${schema}\\nGenerate a SQL query to answer the question: \"${question}\"\\nOutput only the SQL query without any additional text.`;\nreturn [{ json: { chatInput: prompt } }];"
+      },
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -720
+      ],
+      "id": "ed5b89fe-1f3e-4f86-b730-91b5a03a285b"
+    },
+    {
+      "parameters": {
+        "functionCode": "const resp = $json;\nconst output = resp.text || resp.response || '';\nconst sql = (output.trim().match(/^(SELECT[\\s\\S]*;?)/i) || [''])[0];\nreturn [{ json: { sql: sql.trim() } }];"
+      },
+      "name": "Extract SQL",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -720
+      ],
+      "id": "ca4b01f2-0a5a-4f47-8aa4-c94cbe60dfdd"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{!!$json.sql}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Check SQL",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        740,
+        -720
+      ],
+      "id": "3cd30843-e9c5-4fec-b1b9-535c879e2137"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{$json[\"sql\"]}}"
+      },
+      "name": "Execute MySQL Query",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -720
+      ],
+      "id": "4443d307-a1ff-4052-8106-883ccb127785",
+      "credentials": {
+        "mySql": {
+          "id": "ZgDzjXigYArf4Bhz",
+          "name": "MySQL account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const rows = items.map(i => i.json);\nreturn [{ json: { result: rows } }];"
+      },
+      "name": "Format Results",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        -720
+      ],
+      "id": "7700fefa-780e-4183-ad1c-c3dad1a21ef2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        -720
+      ],
+      "id": "11c3c95f-a0c7-4787-9cdd-75f9666cbef2"
+    },
+    {
+      "parameters": {
+        "functionCode": "return [{ json: { error: \"No SQL query could be generated for the input question.\" } }];"
+      },
+      "name": "Format Error",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        720,
+        -400
+      ],
+      "id": "df821ff4-b230-4377-bfad-a8beff66dd3a"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Respond to Webhook (Error)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        980,
+        -400
+      ],
+      "id": "47c9f6a0-a723-4118-96d7-4f18a431671d"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        180,
+        -720
+      ],
+      "id": "e8886bcd-d211-4b53-b307-38a487c3db30",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -660,
+        -740
+      ],
+      "id": "2fca8f93-5d9c-4a5f-9c8c-147a5396b5e5",
+      "name": "When chat message received",
+      "webhookId": "853f333c-0503-485d-916d-a7e9273dc5ab"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL Schema": {
+      "main": [
+        [
+          {
+            "node": "Format Schema",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Schema": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set Question": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Prepare Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract SQL": {
+      "main": [
+        [
+          {
+            "node": "Check SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check SQL": {
+      "main": [
+        [
+          {
+            "node": "Execute MySQL Query",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute MySQL Query": {
+      "main": [
+        [
+          {
+            "node": "Format Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Results": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook (Error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompt": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Extract SQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Set Question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fc59381d-8de6-4c28-93ac-024d850a8626",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6151baa4db8a9b9fb4b6f1b1ca7ab0a0ad6cbb0387c41e9728532a48d25ee3b5"
+  },
+  "id": "ihAvcCO4yhQnc8G1",
+  "tags": []
+}
